@@ -25,6 +25,7 @@
         NSLog(@"SKScene:initWithSize %f x %f",size.width,size.height);
         
         self.backgroundColor = [SKColor blackColor];
+        self.physicsBody = [SKPhysicsBody bodyWithEdgeLoopFromRect:self.frame];
 
 #pragma mark - TBD - Game Backgrounds
         
@@ -62,6 +63,15 @@
         
         _ship = [SKSpriteNode spriteNodeWithImageNamed:@"SpaceFlier_sm_1.png"];
         _ship.position = CGPointMake(self.frame.size.width * 0.1, CGRectGetMidY(self.frame));
+        
+        _ship.physicsBody = [SKPhysicsBody bodyWithRectangleOfSize:_ship.frame.size];
+        
+        _ship.physicsBody.dynamic = YES;
+        
+        _ship.physicsBody.affectedByGravity = NO;
+        
+        _ship.physicsBody.mass = 0.02;
+        
         [self addChild:_ship];
         
 #pragma mark - TBD - Setup the asteroids
@@ -113,7 +123,8 @@
 
 - (void) stopMonitoringAcceleration
 {
-    if (_motionManager.accelerometerAvailable && _motionManager.accelerometerActive) {
+    if (_motionManager.accelerometerAvailable
+        && _motionManager.accelerometerActive) {
         [_motionManager startAccelerometerUpdates];
         NSLog(@"accelerometer updates off...");
     }
@@ -123,7 +134,7 @@
 {
     CMAccelerometerData *data = _motionManager.accelerometerData;
     if (fabs(data.acceleration.x) > 0.2) {
-        NSLog(@"acceleration value = %f", data.acceleration.x);
+        [_ship.physicsBody applyForce:CGVectorMake(0.0, 40.0 * data.acceleration.x)];
     }
 }
 
